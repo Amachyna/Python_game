@@ -1,4 +1,3 @@
-
 import random
 
 
@@ -43,4 +42,4 @@ if __name__ == "__main__":
 
     print(d0 == d1)
 
-    print(d1.roll())
+    d1.roll()
