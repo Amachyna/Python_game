@@ -1,0 +1,2 @@
+class Viking:
+    pass
