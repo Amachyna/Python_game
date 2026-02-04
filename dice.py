@@ -19,28 +19,13 @@ class Dice:
         return random.randint(1, self.faces)
 
 
-class RiggedDice(Dice):
-    def roll(self, rigged=False):
-        if not rigged:
-            return super().roll()
-        else:
-            return self.faces
-
-
 if __name__ == "__main__":
-    d0 = Dice(10, "blue", "wood")
-    d1 = Dice(10, "blue", "wood")
-    d2 = Dice(20, "green", "metal")
-    d3 = Dice()
+    d2 = Dice(2, "golden", "coin")
+    d4 = Dice(4, "blue", "wood")
+    d6 = Dice(6, "green", "metal")
+    d8 = Dice(8, "red", "obsidian")
+    d10 = Dice(10, "violet", "bob")
+    d12 = Dice(12, "green", "plastic")
+    d20 = Dice(20, "blue", "platic")
 
-    print(d1)
-    print(d3)
-    print(d2)
 
-
-    rd = RiggedDice(100)
-    print(rd.roll())
-
-    print(d0 == d1)
-
-    print(d1.roll())
