@@ -27,5 +27,14 @@ if __name__ == "__main__":
     d10 = Dice(10, "violet", "bob")
     d12 = Dice(12, "green", "plastic")
     d20 = Dice(20, "blue", "platic")
+    d100 = Dice(100, "scarlet", "strontium")
 
 
+print(d2.roll())
+print(d4.roll())
+print(d6.roll())
+print(d8.roll())
+print(d10.roll())
+print(d12.roll())
+print(d20.roll())
+print(d100.roll())
