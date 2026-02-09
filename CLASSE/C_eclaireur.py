@@ -1,3 +1,8 @@
 import classe
 class eclaireur(classe):
-    pass
+    def __init__(self):
+        super().__init__("eclaireur", "player life")
+
+    def apply_bonus(self, stats):
+        stats["pv"] + 5
+        return stats
