@@ -1,3 +1,3 @@
-class Paladin:
-    def __init__(self):
-        pass
+import classe
+class paladin(classe):
+    pass

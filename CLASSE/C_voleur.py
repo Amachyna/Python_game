@@ -1,3 +1,3 @@
-class Voleur:
-    def __init__(self):
-        pass
+import classe
+class voleur(classe):
+    pass

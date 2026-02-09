@@ -1,3 +1,3 @@
-class Apothicaire:
-    def __init__(self):
-        pass
+import classe
+class apothicaire(classe):
+    pass

@@ -1,3 +1,3 @@
-class Mage:
-    def __init__(self):
-        pass
+import classe
+class mage(classe):
+    pass

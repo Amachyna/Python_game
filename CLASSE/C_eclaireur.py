@@ -1,3 +1,3 @@
-class Eclaireur:
-    def __init__(self):
-        pass
+import classe
+class eclaireur(classe):
+    pass

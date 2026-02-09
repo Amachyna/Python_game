@@ -1,3 +1,3 @@
-class Pretre:
-    def __init__(self):
-        pass
+import classe
+class pretre(classe):
+    pass
