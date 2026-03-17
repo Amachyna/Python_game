@@ -4,7 +4,7 @@
 """
 Fichier principal du jeu
 """
-
+from introduction import Introduction
 from identiterUser import IdentiteJoueur
 from breed import choisir_race
 from classe import choisir_classe
@@ -58,6 +58,8 @@ def menu_principal():
 def main():
     """Fonction principale du jeu"""
     afficher_titre()
+    intro = Introduction("Fantasy Quest")
+    intro.lancer()
     
     # Création du personnage au démarrage
     personnage = creer_personnage()

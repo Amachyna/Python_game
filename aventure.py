@@ -1,4 +1,5 @@
 from beastiary import TrainingDummy
+from beastiary import ratempereur
 from combat import Combat
 
 
@@ -9,9 +10,12 @@ class Salle:
         self.numero = numero
         self.monstre = None
         
-        # Salle 5 contient le Training Dummy
-        if numero == 5:
+        # Salle 1 contient le Training Dummy
+        if numero == 1:
             self.monstre = TrainingDummy()
+
+        if numero == 9:
+            self.monstre = ratempereur()
     
     def afficher(self):
         """Affiche la salle actuelle"""
