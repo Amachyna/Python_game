@@ -22,7 +22,6 @@ def creer_personnage():
     joueur.creer_identite()
     return joueur
 
-
 def menu_principal():
     """Affiche le menu principal du jeu"""
     print("\n" + "-"*50)
