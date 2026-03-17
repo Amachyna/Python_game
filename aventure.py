@@ -1,4 +1,4 @@
-from bestiary import TrainingDummy
+from beastiary import TrainingDummy
 from combat import Combat
 
 
