@@ -172,7 +172,13 @@ class IdentiteJoueur:
         self.nom = Nom()
         self.prenom = Prenom()
         self.stats = Statistiques()  # Ajout des statistiques initiales
+        self.race = None  # Race du personnage
         self.classe = None  # Classe du personnage
+    
+    def definir_race(self, race):
+        """Définit la race du personnage et applique les bonus"""
+        self.race = race
+        self.race.apply_bonus(self.stats)
     
     def definir_classe(self, classe):
         """Définit la classe du personnage et applique les bonus"""
@@ -197,6 +203,8 @@ class IdentiteJoueur:
         print(f"👤 INFORMATIONS DU PERSONNAGE")
         print(f"{'='*50}")
         print(f"Nom complet : {self.obtenir_nom_complet()}")
+        if self.race:
+            print(f"Race        : {self.race.nom}")
         if self.classe:
             print(f"Classe      : {self.classe.nom}")
         self.stats.afficher_stats()
