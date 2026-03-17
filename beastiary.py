@@ -42,6 +42,31 @@ class Monstre:
     
     def __str__(self):
         return f"{self.nom} (PV: {self.pv}/{self.pv_max})"
+    
+
+class Boss:
+    def __init__(self, name, hp, attack, defense, reward):
+        self.name = name
+        self.hp = hp
+        self.max_hp = hp
+        self.attack = attack
+        self.defense = defense
+        self.reward = reward  
+
+    def is_alive(self):
+        return self.hp > 0
+
+    def take_damage(self, damage):
+        actual_damage = max(0, damage - self.defense)
+        self.hp = max(0, self.hp - actual_damage)
+        return actual_damage
+
+    def attack_target(self, target):
+        damage_dealt = target.take_damage(self.attack)
+        return damage_dealt
+
+    def description(self):
+        return f"{self.name} | HP: {self.hp}/{self.max_hp} | ATK: {self.attack} | DEF: {self.defense}"
 
 
 class TrainingDummy(Monstre):
@@ -86,4 +111,79 @@ class kobold(Monstre):
 
     def description(self):
         return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+
+class skeleton(Monstre):
+    """Squelette - Un monstre avec une attaque modérée et une défense faible"""
     
+    def __init__(self):
+        super().__init__("Squelette", 10, 2)
+        self.attaque = 6  # Dégâts de base du Squelette
+        self.peut_defendre = True  # Le Squelette peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
+class Slime(Monstre):
+    """Slime - Un monstre avec une défense faible mais une attaque modérée"""
+    
+    def __init__(self):
+        super().__init__("Slime", 12, 1)
+        self.attaque = 5  # Dégâts de base du Slime
+        self.peut_defendre = True  # Le Slime peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
+class rat(Monstre):
+    """Rat - Un monstre rapide avec une attaque faible"""
+    
+    def __init__(self):
+        super().__init__("Rat", 8, 1)
+        self.attaque = 3  # Dégâts de base du Rat
+        self.peut_defendre = True  # Le Rat peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
+class ratgéant(Monstre):
+    """Rat Géant - Un monstre rapide avec une attaque plus élevée que le Rat normal"""
+    
+    def __init__(self):
+        super().__init__("Rat Géant", 15, 2)
+        self.attaque = 5  # Dégâts de base du Rat Géant
+        self.peut_defendre = True  # Le Rat Géant peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
+class chauve_souris(Monstre):
+    """Chauve-souris - Un monstre rapide avec une attaque faible mais une grande agilité"""
+    
+    def __init__(self):
+        super().__init__("Chauve-souris", 7, 1)
+        self.attaque = 4  # Dégâts de base de la Chauve-souris
+        self.peut_defendre = True  # La Chauve-souris peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
+
+class GoblinBoss(Boss):
+    def __init__(self):
+        super().__init__(
+            name="Goblin",
+            hp=60,
+            attack=8,
+            defense=2,
+            reward={"xp": 100, "gold": 30}
+        )
+
+class ratempereur(Boss):
+    def __init__(self):
+        super().__init__(
+            name="Rat Empereur",
+            hp=40,
+            attack=6,
+            defense=3,
+            reward={"xp": 70, "gold": 15}
+        )
