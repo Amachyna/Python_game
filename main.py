@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import Introduction
+
+from Introduction import Introduction
 
 """
 Fichier principal du jeu
@@ -39,7 +40,9 @@ def menu_principal():
 def main():
     """Fonction principale du jeu"""
     afficher_titre()
-    
+    intro = Introduction("Fantasy Quest")
+    intro.lancer()
+
     # Création du personnage au démarrage
     personnage = creer_personnage()
     

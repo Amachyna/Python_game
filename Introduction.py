@@ -18,6 +18,7 @@ class Introduction:
         print("Vous vous êtes réfugié et caché dans les égouts de la capitale pour fuir, mais vous allez devoir vous battre pour survivre !")
     
     def afficher_objectif(self):
+        print("Objectif :")
         print("Fuir par les égouts de la capitale")
         print("et trouver des alliés pour vous battre, et survivre... !\n")
     
