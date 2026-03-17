@@ -10,7 +10,7 @@ class Character:
         self._dice = dice
         self._breed = breed
 
-    # Ex 1 → Créer la méthode __str__ pour print correctement un personnage
+  
 
     def __str__(self):
         return f"Hi ! My name is {self._name}. I am a {self._breed}, Attack: {self._attack_value}/Defense: {self._defense_value}"
