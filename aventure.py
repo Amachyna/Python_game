@@ -1,15 +1,32 @@
+from bestiary import TrainingDummy
+from combat import Combat
+
+
 class Salle:
     """Classe représentant une salle dans l'aventure"""
     
     def __init__(self, numero):
         self.numero = numero
+        self.monstre = None
+        
+        # Salle 5 contient le Training Dummy
+        if numero == 5:
+            self.monstre = TrainingDummy()
     
     def afficher(self):
         """Affiche la salle actuelle"""
         print(f"\n{'='*50}")
         print(f"🚪 SALLE {self.numero}/10")
         print(f"{'='*50}")
-        print(f"Vous êtes dans la salle numéro {self.numero}.")
+        
+        if self.monstre:
+            print(f"⚠️  Un {self.monstre.nom} se trouve dans cette salle !")
+        else:
+            print(f"Vous êtes dans la salle numéro {self.numero}.")
+    
+    def a_monstre(self):
+        """Vérifie si la salle contient un monstre"""
+        return self.monstre is not None
     
     def __str__(self):
         return f"Salle {self.numero}"
@@ -40,6 +57,25 @@ class Aventure:
         while self.en_cours and self.salle_actuelle <= self.nombre_salles_total:
             salle = Salle(self.salle_actuelle)
             salle.afficher()
+            
+            # Si la salle contient un monstre, lancer un combat
+            if salle.a_monstre():
+                combat = Combat(self.personnage, salle.monstre)
+                combat.commencer()
+                
+                # Vérifier si le joueur a fui le combat
+                if not salle.monstre.is_alive() and self.personnage.stats.pv > 0:
+                    # Victoire contre le monstre
+                    print(f"\n✅ Vous avez vaincu le {salle.monstre.nom} !")
+                elif self.personnage.stats.pv <= 0:
+                    # Le joueur a été vaincu
+                    self.terminer_aventure(victoire=False)
+                    break
+                else:
+                    # Le joueur a fui (monstre encore vivant mais combat terminé)
+                    if salle.monstre.is_alive():
+                        self.terminer_aventure(victoire=False)
+                        break
             
             # Vérifier si c'est la dernière salle
             if self.salle_actuelle == self.nombre_salles_total:
@@ -81,7 +117,7 @@ class Aventure:
             print(f"Félicitations {self.personnage.prenom} !")
             print(f"Vous avez traversé les {self.nombre_salles_total} salles avec succès !")
         else:
-            print("❌ AVENTURE ABANDONNÉE")
+            print("❌ AVENTURE TERMINÉE")
             print(f"{'='*50}")
             print(f"Vous avez abandonné à la salle {self.salle_actuelle}/{self.nombre_salles_total}.")
             print(f"Peut-être la prochaine fois, {self.personnage.prenom}...")
