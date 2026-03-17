@@ -54,36 +54,3 @@ class TrainingDummy(Monstre):
     def description(self):
         return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🎯 Cible d'entraînement"
     
-class Goblin(Monstre):
-    """Goblin - Un monstre basique avec une attaque modérée"""
-    
-    def __init__(self):
-        super().__init__("Goblin", 20, 5)
-        self.attaque = 5  # Dégâts de base du Goblin
-        self.peut_defendre = True  # Le Goblin peut se défendre
-
-    def description(self):
-        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
-
-class loup(Monstre):
-    """Loup - Un monstre rapide avec une attaque plus élevée"""
-    
-    def __init__(self):
-        super().__init__("Loup", 25, 3)
-        self.attaque = 7  # Dégâts de base du Loup
-        self.peut_defendre = True  # Le Loup peut se défendre
-
-    def description(self):
-        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
-    
-class kobold(Monstre):
-    """Kobold - Un monstre avec une défense élevée mais une attaque plus faible"""
-    
-    def __init__(self):
-        super().__init__("Kobold", 15, 8)
-        self.attaque = 4  # Dégâts de base du Kobold
-        self.peut_defendre = True  # Le Kobold peut se défendre
-
-    def description(self):
-        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
-    
