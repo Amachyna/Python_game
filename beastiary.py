@@ -134,13 +134,56 @@ class Slime(Monstre):
     def description(self):
         return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
     
+class rat(Monstre):
+    """Rat - Un monstre rapide avec une attaque faible"""
+    
+    def __init__(self):
+        super().__init__("Rat", 8, 1)
+        self.attaque = 3  # Dégâts de base du Rat
+        self.peut_defendre = True  # Le Rat peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
+class ratgéant(Monstre):
+    """Rat Géant - Un monstre rapide avec une attaque plus élevée que le Rat normal"""
+    
+    def __init__(self):
+        super().__init__("Rat Géant", 15, 2)
+        self.attaque = 5  # Dégâts de base du Rat Géant
+        self.peut_defendre = True  # Le Rat Géant peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
+class chauve_souris(Monstre):
+    """Chauve-souris - Un monstre rapide avec une attaque faible mais une grande agilité"""
+    
+    def __init__(self):
+        super().__init__("Chauve-souris", 7, 1)
+        self.attaque = 4  # Dégâts de base de la Chauve-souris
+        self.peut_defendre = True  # La Chauve-souris peut se défendre
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | 🗡️ Attaque: {self.attaque} | 🛡️ Défense: {self.defense}"
+    
 
 class GoblinBoss(Boss):
     def __init__(self):
         super().__init__(
             name="Goblin",
-            hp=50,
-            attack=5,
+            hp=60,
+            attack=8,
             defense=2,
             reward={"xp": 100, "gold": 30}
+        )
+
+class ratempereur(Boss):
+    def __init__(self):
+        super().__init__(
+            name="Rat Empereur",
+            hp=40,
+            attack=6,
+            defense=3,
+            reward={"xp": 70, "gold": 15}
         )
