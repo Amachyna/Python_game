@@ -15,7 +15,7 @@ class Introduction:
         print("Le roi humain fut assassiné, et le nouveau souverain ne désirait qu'une seule chose...\n")
         print("la suprématie humaine. Sans crier gare, les hybrides se sont fait chasser et tuer au sein de la capitale.\n")
         print("Les hybrides prirent la fuite, mais beaucoup ont péri sur place !\n")
-        print("Vous vous êtes réfugié et caché dans les égouts de la capitale pour fuir, mais vous allez devoir vous battre pour survivre !")
+        print("Vous vous êtes réfugié et caché dans les égouts de la capitale pour fuir, mais vous allez devoir vous battre pour survivre !\n")
     
     def afficher_objectif(self):
         print("Objectif :")
