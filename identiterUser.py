@@ -27,6 +27,12 @@ class Statistiques:
         """Getter pour les PV maximum"""
         return self._pv_max
     
+    @pv_max.setter
+    def pv_max(self, valeur):
+        """Setter pour les PV maximum"""
+        if valeur >= 0:
+            self._pv_max = valeur
+    
     @property
     def attaque(self):
         """Getter pour l'attaque"""
@@ -104,6 +110,7 @@ class Nom:
             except ValueError as e:
                 print(f"❌ Erreur : {e}")
         return self._nom
+        return self._nom
     
     def __str__(self):
         return self._nom
@@ -165,6 +172,12 @@ class IdentiteJoueur:
         self.nom = Nom()
         self.prenom = Prenom()
         self.stats = Statistiques()  # Ajout des statistiques initiales
+        self.classe = None  # Classe du personnage
+    
+    def definir_classe(self, classe):
+        """Définit la classe du personnage et applique les bonus"""
+        self.classe = classe
+        self.classe.apply_bonus(self.stats)
     
     def creer_identite(self):
         """Demande au joueur de créer son identité complète"""
@@ -172,7 +185,7 @@ class IdentiteJoueur:
         self.prenom.demander_prenom()
         self.nom.demander_nom()
         print(f"\nBienvenue, {self.prenom} {self.nom} !")
-        print(f"Statistiques initiales : {self.stats}")
+        print(f"Statistiques de base : {self.stats}")
     
     def obtenir_nom_complet(self):
         """Retourne le nom complet du joueur"""
@@ -184,6 +197,8 @@ class IdentiteJoueur:
         print(f"👤 INFORMATIONS DU PERSONNAGE")
         print(f"{'='*50}")
         print(f"Nom complet : {self.obtenir_nom_complet()}")
+        if self.classe:
+            print(f"Classe      : {self.classe.nom}")
         self.stats.afficher_stats()
         print(f"{'='*50}")
     
