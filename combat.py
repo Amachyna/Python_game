@@ -8,7 +8,7 @@ class Combat:
     def __init__(self, personnage, monstre):
         self.personnage = personnage
         self.monstre = monstre
-        self.de20 = Dice(20)
+        self.de20 = Dice(20, "gold", "metal")
         self.tour = 0
         self.en_cours = True
     
@@ -68,23 +68,25 @@ class Combat:
     
     def attaque_joueur(self):
         """Le joueur attaque le monstre"""
-        # Lancer le dé de 20
-        jet = self.de20.roll()
-        print(f"\n🎲 Vous lancez le dé... Résultat : {jet}")
+        print(f"\n⚔️  Vous attaquez {self.monstre.nom} !")
         
-        # Déterminer le type d'attaque
-        if jet == 20:
-            # Critique réussi
+        # Lancer le dé avec animation
+        jet, critical_type = self.de20.roll_with_critical(animated=True)
+        
+        # Calculer les dégâts en fonction du type de critique et du jet
+        if critical_type == "success":
+            # Critique réussi : dégâts doublés
             degats_base = self.personnage.stats.attaque * 2
-            print(f"💥 COUP CRITIQUE ! Dégâts doublés !")
-        elif jet == 1:
-            # Échec critique
+            print(f"💥 Dégâts CRITIQUES : {degats_base} !")
+            
+        elif critical_type == "fail":
+            # Échec critique : aucun dégât
             degats_base = 0
-            print(f"💢 ÉCHEC CRITIQUE ! Vous ratez complètement votre attaque !")
+            print(f"💀 Vous ratez complètement votre attaque !")
+            
         else:
             # Attaque normale - Les dégâts augmentent avec le jet
             # Formule : attaque * (0.5 + (jet/20) * 0.5)
-            # Jet de 2 = 55% des dégâts, Jet de 19 = 97.5% des dégâts
             multiplicateur = 0.5 + (jet / 20) * 0.5
             degats_base = int(self.personnage.stats.attaque * multiplicateur)
             
