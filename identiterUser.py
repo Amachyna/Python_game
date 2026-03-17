@@ -156,50 +156,10 @@ class Prenom:
     
     def __str__(self):
         return self._prenom
-    
-class Race:
-    """Classe pour gérer le nom de famille du joueur"""
-    
-    # Liste des noms disponibles
-    RACES_DISPONIBLES = ["Chien", "Chat", "Kippy"]
-    
-    def __init__(self, race=""):
-        self._race = race
-    
-    @property
-    def race(self):
-        """Getter pour la race"""
-        return self._race
-    
-    @race.setter
-    def race(self, valeur):
-        """Setter pour le nom avec validation"""
-        if valeur not in self.RACES_DISPONIBLES:
-            raise ValueError(f"Le nom doit être l'un des choix disponibles : {', '.join(self.RACES_DISPONIBLES)}")
-        self._race = valeur
-    
-    def demander_race(self):
-        """Demande au joueur de choisir une race parmi les options"""
-        print("\nChoisissez votre race :")
-        print("-" * 40)
-        for i, nom in enumerate(self.RACES_DISPONIBLES, 1):
-            print(f"{i}. {nom}")
-        print("-" * 40)
-        
-        while True:
-            choix = input("Votre choix (1-3) : ")
-            
-            if choix in ["1", "2", "3"]:
-                index = int(choix) - 1
-                self.race = self.NOMS_DISPONIBLES[index]
-                break
-            else:
-                print("❌ Erreur : Veuillez choisir 1, 2 ou 3")
-        
-        return self._race
-    
-    def __str__(self):
-        return self._race
+<<<<<<< Updated upstream
+
+=======
+>>>>>>> Stashed changes
 
 class IdentiteJoueur:
     """Classe pour gérer l'identité complète du joueur"""
@@ -208,25 +168,22 @@ class IdentiteJoueur:
         self.nom = Nom()
         self.prenom = Prenom()
         self.stats = Statistiques()  # Ajout des statistiques initiales
-        self.race = Race()
+<<<<<<< Updated upstream
+    
+=======
 
+>>>>>>> Stashed changes
     def creer_identite(self):
         """Demande au joueur de créer son identité complète"""
         print("\n=== Création de votre personnage ===\n")
         self.prenom.demander_prenom()
         self.nom.demander_nom()
-        self.race.demander_race()
         print(f"\nBienvenue, {self.prenom} {self.nom} !")
         print(f"Statistiques initiales : {self.stats}")
-        print(f"Race : {self.race}")
     
     def obtenir_nom_complet(self):
         """Retourne le nom complet du joueur"""
         return f"{self.prenom} {self.nom}"
-    
-    def obtenir_race(self):
-        """Retourne la race du joueur"""
-        return f"{self.race}"
     
     def afficher_informations_completes(self):
         """Affiche toutes les informations du personnage"""
@@ -234,14 +191,10 @@ class IdentiteJoueur:
         print(f"👤 INFORMATIONS DU PERSONNAGE")
         print(f"{'='*50}")
         print(f"Nom complet : {self.obtenir_nom_complet()}")
-        print(f"Race : {self.obtenir_race()}")
         self.stats.afficher_stats()
         print(f"{'='*50}")
-        
     
     def __str__(self):
         return self.obtenir_nom_complet()
- 
-    def __str__(self):
-        return self.obtenir_race()
+
 # Ce module sera importé par main.py pour la création du personnage
