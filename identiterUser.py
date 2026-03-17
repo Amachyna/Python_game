@@ -156,10 +156,7 @@ class Prenom:
     
     def __str__(self):
         return self._prenom
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 
 class IdentiteJoueur:
     """Classe pour gérer l'identité complète du joueur"""
@@ -168,11 +165,7 @@ class IdentiteJoueur:
         self.nom = Nom()
         self.prenom = Prenom()
         self.stats = Statistiques()  # Ajout des statistiques initiales
-<<<<<<< Updated upstream
     
-=======
-
->>>>>>> Stashed changes
     def creer_identite(self):
         """Demande au joueur de créer son identité complète"""
         print("\n=== Création de votre personnage ===\n")
