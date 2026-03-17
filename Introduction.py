@@ -10,16 +10,16 @@ class Introduction:
         print("=" * 50)
     
     def afficher_histoire(self):
-        print("\nDans un monde ou humain et hybride vivent en harmonie,")
-        print("un evenement eu lieux et changas le destin du monde.")
-        print("le roi Humain fut assasiner, et le nouveau souverain ne desirer qu'une seul chose...\n")
-        print("la suprematie humaine, sans crier gares les hybrides se sont fait chasser et tuer au seins de la capitales.\n")
-        print("les hybrides prirent la fuite, mais baucoup ont peri sur place !\n")
-        print("vous vous etes refugier et cacher dans les egoue de la capitale pour fuire, mais vous allez devoir vous battre pour suivivre !")
+        print("\nDans un monde où humains et hybrides vivent en harmonie,")
+        print("un événement eut lieu et changea le destin du monde.")
+        print("Le roi humain fut assassiné, et le nouveau souverain ne désirait qu'une seule chose...\n")
+        print("la suprématie humaine. Sans crier gare, les hybrides se sont fait chasser et tuer au sein de la capitale.\n")
+        print("Les hybrides prirent la fuite, mais beaucoup ont péri sur place !\n")
+        print("Vous vous êtes réfugié et caché dans les égouts de la capitale pour fuir, mais vous allez devoir vous battre pour survivre !")
     
     def afficher_objectif(self):
-        print("fuire par les egoux de la capitale")
-        print("et trouver des alier pour vous battre, et survuvre... !\n")
+        print("Fuir par les égouts de la capitale")
+        print("et trouver des alliés pour vous battre, et survivre... !\n")
     
     def lancer(self):
         """Lance toute l'introduction"""
