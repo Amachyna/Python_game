@@ -6,6 +6,8 @@ Fichier principal du jeu
 """
 
 from identiterUser import IdentiteJoueur
+from breed import choisir_race
+from classe import choisir_classe
 
 
 def afficher_titre():
@@ -18,7 +20,23 @@ def afficher_titre():
 def creer_personnage():
     """Crée et retourne un nouveau personnage"""
     joueur = IdentiteJoueur()
+    
+    # Étape 1 : Créer l'identité (prénom et nom)
     joueur.creer_identite()
+    
+    # Étape 2 : Choisir la race et appliquer les bonus
+    print("\n")
+    race_selectionnee = choisir_race()
+    joueur.definir_race(race_selectionnee)
+    
+    # Étape 3 : Choisir la classe et appliquer les bonus
+    print("\n")
+    classe_selectionnee = choisir_classe()
+    joueur.definir_classe(classe_selectionnee)
+    
+    # Afficher les statistiques finales
+    print(f"\n✨ Statistiques finales : {joueur.stats}\n")
+    
     return joueur
 
 
