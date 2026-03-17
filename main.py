@@ -8,6 +8,7 @@ Fichier principal du jeu
 from identiterUser import IdentiteJoueur
 from breed import choisir_race
 from classe import choisir_classe
+from aventure import Aventure
 
 
 def afficher_titre():
@@ -67,8 +68,9 @@ def main():
         choix = menu_principal()
         
         if choix == "1":
-            print(f"\n🎮 {personnage}, votre aventure commence...")
-            print("(Cette partie sera développée plus tard)")
+            # Lancer l'aventure
+            aventure = Aventure(personnage)
+            aventure.commencer()
             
         elif choix == "2":
             personnage.afficher_informations_completes()
