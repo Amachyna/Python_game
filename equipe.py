@@ -1,9 +1,12 @@
 import random
 from identiterUser import IdentiteJoueur, Statistiques
-from inventaire import Inventaire, PotionSoin
+from inventaire import Inventaire, PotionSoin, StockEquipement
 from breed import Feline, Human, Panda, Reptilian, Spirit, RACES_DISPONIBLES
 from classe import (Apothicaire, Barde, Eclaireur, Mage, Paladin,
-                    Pretre, Viking, Voleur, CLASSES_DISPONIBLES)
+                    Pretre, Viking, Voleur, Admin, CLASSES_DISPONIBLES)
+
+# Classes accessibles aux compagnons (Admin exclue)
+CLASSES_COMPAGNON = {k: v for k, v in CLASSES_DISPONIBLES.items() if v is not Admin}
 
 # ─── Banques de prénoms et noms aléatoires ───────────────────────────────────
 
@@ -54,7 +57,7 @@ def creer_compagnon(joueur_principal):
     compagnon.definir_race(race_cls())
 
     # Classe aléatoire
-    classe_cls = random.choice(list(CLASSES_DISPONIBLES.values()))
+    classe_cls = random.choice(list(CLASSES_COMPAGNON.values()))
     compagnon.definir_classe(classe_cls())
 
     # Monter au niveau du joueur avec tous les points auto + 1 libre par niveau
@@ -103,8 +106,9 @@ class Equipe:
 
     def __init__(self, joueur_principal):
         self.membres = [joueur_principal]   # Le joueur principal est toujours en index 0
-        self.inventaire = Inventaire()       # Inventaire partagé entre tous les membres
+        self.inventaire = Inventaire()       # Inventaire partagé (potions)
         self.inventaire.ajouter(PotionSoin())  # Potion de départ
+        self.stock = StockEquipement()         # Armes/armures non équipées
 
     @property
     def joueur(self):
@@ -129,7 +133,8 @@ class Equipe:
             role   = " (Principal)" if i == 0 else " (Compagnon)"
             print(f"  {statut} {m.prenom} {m.nom}{role}")
             print(f"     Niv.{m.niveau} | {m.stats}")
-        print(f"  🎒 Inventaire partagé : {self.inventaire}")
+        print(f"  🎒 Inventaire : {self.inventaire}")
+        print(f"  🗃️  Stock équipement : {self.stock}")
         print(f"{'='*60}")
 
     def gagner_xp_equipe(self, xp, gold):

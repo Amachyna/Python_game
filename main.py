@@ -51,7 +51,8 @@ def menu_principal():
     print("1. Commencer l'aventure")
     print("2. Voir les informations du personnage")
     print("3. Voir l'équipement")
-    print("4. Quitter le jeu")
+    print("4. Gérer le stock d'équipement (armes/armures)")
+    print("5. Quitter le jeu")
     print("-"*50)
     
     choix = input("\nVotre choix : ")
@@ -60,33 +61,46 @@ def menu_principal():
 
 def main():
     """Fonction principale du jeu"""
+    from equipe import Equipe
     Introduction("Les Égouts de la Capitale").lancer()
 
-    # Création du personnage au démarrage
+    # Création du personnage et de l'équipe au démarrage
     personnage = creer_personnage()
-    
+    equipe = Equipe(personnage)
+
     # Boucle principale du jeu
     en_jeu = True
     while en_jeu:
         choix = menu_principal()
-        
+
         if choix == "1":
-            # Lancer l'aventure
-            aventure = Aventure(personnage)
+            # Lancer l'aventure en passant l'équipe (persistante entre les runs)
+            aventure = Aventure(equipe)
             aventure.commencer()
-            
+            if aventure.game_over:
+                print(f"\n💀 Fin du jeu. À la prochaine, {personnage.prenom} !")
+                en_jeu = False
+            elif not aventure.en_cours:
+                # Victoire finale — fin du programme
+                print(f"\n👑 Merci d'avoir joué, {personnage.prenom} !")
+                en_jeu = False
+
         elif choix == "2":
             personnage.afficher_informations_completes()
 
         elif choix == "3":
             personnage.afficher_equipement()
 
+
         elif choix == "4":
+            equipe.stock.gerer(equipe)
+
+        elif choix == "5":
             print(f"\n👋 Au revoir {personnage.prenom} ! À bientôt !")
             en_jeu = False
 
         else:
-            print("\n❌ Choix invalide. Veuillez choisir 1, 2, 3 ou 4.")
+            print("\n❌ Choix invalide. Veuillez choisir 1 à 5.")
 
 
 if __name__ == "__main__":

@@ -126,6 +126,23 @@ class Voleur(Classe):
         return stats
 
 
+class Admin(Classe):
+    """Classe Admin — Stats maximales"""
+
+    def __init__(self):
+        super().__init__("Admin", "Mode administrateur (+100 partout)")
+
+    def apply_bonus(self, stats):
+        stats.pv_max          += 100
+        stats.pv              += 100
+        stats.attaque         += 100
+        stats.defense         += 100
+        stats.attaque_magique += 100
+        stats.defense_magique += 100
+        stats.vitesse         += 100
+        return stats
+
+
 # Dictionnaire des classes disponibles
 CLASSES_DISPONIBLES = {
     1: Apothicaire,
@@ -135,7 +152,8 @@ CLASSES_DISPONIBLES = {
     5: Paladin,
     6: Pretre,
     7: Viking,
-    8: Voleur
+    8: Voleur,
+    9: Admin
 }
 
 
@@ -152,6 +170,7 @@ def afficher_classes():
     print("6. Pretre      - Soigneur divin       (+5 PV, +2 ATK MAG, +2 DEF MAG)")
     print("7. Viking      - Guerrier redoutable  (+3 ATK, +3 VIT)")
     print("8. Voleur      - Expert en discrétion (+2 ATK, +5 VIT)")
+    print("9. Admin       - Mode administrateur   (+100 partout)")
     print("="*60)
 
 
@@ -162,9 +181,9 @@ def choisir_classe():
     while True:
         choix = input("Votre choix (1-8) : ")
         
-        if choix in ["1", "2", "3", "4", "5", "6", "7", "8"]:
+        if choix in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:
             classe_choisie = CLASSES_DISPONIBLES[int(choix)]()
             print(f"\n✅ Classe choisie : {classe_choisie.nom}")
             return classe_choisie
         else:
-            print("❌ Erreur : Veuillez choisir un nombre entre 1 et 8")
+            print("❌ Erreur : Veuillez choisir un nombre entre 1 et 9")

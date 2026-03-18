@@ -5,14 +5,15 @@ class Arme:
     """Classe de base pour toutes les armes"""
 
     def __init__(self, nom, type_arme, bonus_attaque, bonus_defense, description, classes_compatibles, emoji,
-                 bonus_attaque_magique=0, bonus_defense_magique=0, est_magique=False):
+                 bonus_attaque_magique=0, bonus_defense_magique=0, est_magique=False, tier=1):
         self.nom = nom
         self.type_arme = type_arme
         self.bonus_attaque = bonus_attaque
         self.bonus_defense = bonus_defense
         self.bonus_attaque_magique = bonus_attaque_magique
         self.bonus_defense_magique = bonus_defense_magique
-        self.est_magique = est_magique  # Si True, l'attaque scale sur ATK MAG et est bloquée par DEF MAG
+        self.est_magique = est_magique
+        self.tier = tier
         self.description = description
         self.classes_compatibles = classes_compatibles
         self.emoji = emoji
@@ -20,7 +21,8 @@ class Arme:
     def afficher(self):
         """Affiche les informations de l'arme"""
         type_label = "✨ MAGIQUE" if self.est_magique else "⚔️  PHYSIQUE"
-        print(f"\n  {self.emoji} {self.nom} [{self.type_arme}] — {type_label}")
+        tier_label  = f" ★ Tier {self.tier}" if self.tier > 1 else ""
+        print(f"\n  {self.emoji} {self.nom} [{self.type_arme}]{tier_label} — {type_label}")
         print(f"     {self.description}")
         parties = []
         if self.bonus_attaque > 0:
@@ -43,8 +45,9 @@ class Arme:
             parties.append(f"+{self.bonus_attaque_magique} ATK MAG")
         if self.bonus_defense_magique > 0:
             parties.append(f"+{self.bonus_defense_magique} DEF MAG")
-        tag = " [MAG]" if self.est_magique else ""
-        return f"{self.emoji} {self.nom}{tag} ({', '.join(parties)})"
+        tag  = " [MAG]" if self.est_magique else ""
+        tier = f" T{self.tier}" if self.tier > 1 else ""
+        return f"{self.emoji} {self.nom}{tag}{tier} ({', '.join(parties)})"
 
 
 # ─── Les 8 armes ────────────────────────────────────────────────────────────
@@ -164,37 +167,20 @@ class Baton(Arme):
 
 # ─── Registre complet des armes ─────────────────────────────────────────────
 
-TOUTES_LES_ARMES = [
-    Epee,
-    Grimoire,
-    Lance,
-    Arc,
-    Massue,
-    Instrument,
-    Dague,
-    Baton,
-]
+ARMES_T1 = [Epee, Grimoire, Lance, Arc, Massue, Instrument, Dague, Baton]
+TOUTES_LES_ARMES = ARMES_T1  # Compatibilité
 
 
-def get_armes_pour_classe(nom_classe, nombre=3):
-    """
-    Retourne `nombre` armes aléatoires adaptées à la classe du joueur.
-    Priorité aux armes compatibles, complétées par des armes neutres si besoin.
-    """
-    compatibles = [cls() for cls in TOUTES_LES_ARMES
-                   if nom_classe in cls().classes_compatibles]
-    incompatibles = [cls() for cls in TOUTES_LES_ARMES
-                     if nom_classe not in cls().classes_compatibles]
-
+def get_armes_pour_classe(nom_classe, nombre=3, tier=1):
+    """Retourne `nombre` armes du tier donné adaptées à la classe du joueur."""
+    pool = ARMES_T1 if tier == 1 else ARMES_T2
+    compatibles   = [cls() for cls in pool if nom_classe in cls().classes_compatibles]
+    incompatibles = [cls() for cls in pool if nom_classe not in cls().classes_compatibles]
     random.shuffle(compatibles)
     random.shuffle(incompatibles)
-
     selection = compatibles[:nombre]
-
-    # Compléter si moins de 3 armes compatibles
     if len(selection) < nombre:
         selection += incompatibles[:nombre - len(selection)]
-
     return selection[:nombre]
 
 
@@ -222,3 +208,62 @@ def choisir_arme(armes):
             return arme_choisie
         else:
             print("❌ Choix invalide. Entrez 1, 2 ou 3.")
+
+
+# ─── Armes Tier 2 — Forêt ────────────────────────────────────────────────────
+
+class EpeeForet(Arme):
+    def __init__(self):
+        super().__init__("Épée de la Forêt", "Épée", 9, 3,
+            "Forgée avec du bois d'ent et de l'acier elfique.",
+            ["Viking", "Paladin", "Eclaireur"], "⚔️", tier=2)
+
+class GrimoireAncien(Arme):
+    def __init__(self):
+        super().__init__("Grimoire Ancien", "Grimoire magique", 0, 0,
+            "Un grimoire imprégné de la magie primordiale de la forêt.",
+            ["Mage", "Apothicaire", "Pretre"], "📖",
+            bonus_attaque_magique=13, bonus_defense_magique=3, est_magique=True, tier=2)
+
+class LanceAncienne(Arme):
+    def __init__(self):
+        super().__init__("Lance des Anciens", "Lance", 9, 5,
+            "Une lance sacrée portant des runes de protection.",
+            ["Viking", "Paladin", "Eclaireur"], "🗡️", tier=2)
+
+class ArcElfique(Arme):
+    def __init__(self):
+        super().__init__("Arc Elfique", "Arc", 0, 0,
+            "Ses flèches enchantées transpercent les défenses magiques.",
+            ["Eclaireur", "Voleur", "Barde"], "🏹",
+            bonus_attaque_magique=12, est_magique=True, tier=2)
+
+class HacheGuerre(Arme):
+    def __init__(self):
+        super().__init__("Hache de Guerre", "Massue/Hache", 13, 0,
+            "Une hache colossale forgée dans le métal des profondeurs.",
+            ["Viking", "Paladin"], "🪓", tier=2)
+
+class LuthEsprits(Arme):
+    def __init__(self):
+        super().__init__("Luth des Esprits", "Instrument de musique", 0, 4,
+            "Les mélodies jouées invoquent des esprits protecteurs.",
+            ["Barde", "Apothicaire"], "🎸",
+            bonus_attaque_magique=9, bonus_defense_magique=2, est_magique=True, tier=2)
+
+class DagueOmbre(Arme):
+    def __init__(self):
+        super().__init__("Dague de l'Ombre", "Dague", 10, 2,
+            "Une lame forgée dans l'obscurité, invisible jusqu'au dernier instant.",
+            ["Voleur", "Eclaireur", "Barde"], "🔪", tier=2)
+
+class BatonDruidique(Arme):
+    def __init__(self):
+        super().__init__("Bâton Druidique", "Bâton", 0, 4,
+            "Un bâton taillé dans un arbre millénaire, channelant la magie naturelle.",
+            ["Mage", "Pretre", "Apothicaire", "Barde"], "🪄",
+            bonus_attaque_magique=11, bonus_defense_magique=5, est_magique=True, tier=2)
+
+
+ARMES_T2 = [EpeeForet, GrimoireAncien, LanceAncienne, ArcElfique,
+            HacheGuerre, LuthEsprits, DagueOmbre, BatonDruidique]

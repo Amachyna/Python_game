@@ -5,7 +5,9 @@ from beastiary import (TrainingDummy, ratempereur, chauve_souris, Slime, rat, ra
                         gobelin_sergant, roi_gobelin)
 from combat import Combat
 from weapons import get_armes_pour_classe, choisir_arme
-from npc import Marchand
+from armures import get_armures_pour_classe, choisir_armure
+from inventaire import ArmeItem, ArmureItem
+from npc import Marchand, MarchandForet
 from inventaire import PotionSoin, PotionPerfection
 from dialogues.villageois import VICTOIRE_SERGANT
 from equipe import Equipe, creer_compagnon
@@ -14,8 +16,9 @@ from equipe import Equipe, creer_compagnon
 # Pool de monstres selon la progression dans les salles
 MONSTRES_DEBUT  = [chauve_souris, Slime, rat]                              # Salles 2-8
 MONSTRES_MILIEU = [chauve_souris, Slime, rat, ratgéant]                    # Salles 9-15
-MONSTRES_FORET  = [loup_alpha, araignee_geante, goblin_archer, ent,
-                   esprit_foret, sanglier_enrage]                           # Salles 16-30
+MONSTRES_FORET_DEBUT = [goblin_archer, araignee_geante, esprit_foret]        # Salles 16-20
+MONSTRES_FORET_PLEIN = [loup_alpha, araignee_geante, goblin_archer, ent,
+                        esprit_foret, sanglier_enrage]                       # Salles 21+
 
 
 class Salle:
@@ -29,6 +32,7 @@ class Salle:
         self.est_salle_soin = False
         self.est_salle_loot = False
         self.npc = None
+        self.contient_armes_t2 = False
 
         # Salles scriptées
         if numero == 1:
@@ -37,17 +41,23 @@ class Salle:
             self.monstre = ratempereur()
         elif numero == 20:
             self.monstre = gobelin_sergant()
+        elif numero == 17:
+            self.contient_armes_t2 = True
         elif numero == 30:
             self.monstre = roi_gobelin()
         elif numero == 8:
             self.npc = Marchand()
-        elif numero not in (1, 5, 8, 15, 20, 30):
+        elif numero == 25:
+            self.npc = MarchandForet()
+        elif numero not in (1, 5, 8, 15, 17, 20, 25, 30):
             # Salles libres : 65% monstre(s), 25% soin, 10% loot
             tirage = random.random()
             if tirage < 0.65:
                 nb = random.randint(1, 2)
-                if numero >= 16:
-                    pool = MONSTRES_FORET
+                if numero >= 21:
+                    pool = MONSTRES_FORET_PLEIN
+                elif numero >= 16:
+                    pool = MONSTRES_FORET_DEBUT
                 elif numero >= 9:
                     pool = MONSTRES_MILIEU
                 else:
@@ -74,6 +84,8 @@ class Salle:
             print(f"⚠️  {noms} se trouvent dans cette salle !")
         elif self.monstre:
             print(f"⚠️  Un {self.monstre.nom} se trouve dans cette salle !")
+        elif self.contient_armes_t2:
+            print(f"✨ Un coffre orné de runes brille d'une lumière dorée...")
         elif self.est_salle_loot:
             print(f"💎 Un objet scintille dans l'obscurité...")
         elif self.contient_armes:
@@ -102,6 +114,7 @@ class Aventure:
         self.salle_actuelle = 0
         self.nombre_salles_total = 30
         self.en_cours = False
+        self.game_over = False
     
     def commencer(self):
         """Commence l'aventure"""
@@ -154,12 +167,20 @@ class Aventure:
                 nom_classe = self.equipe.joueur.classe.nom if self.equipe.joueur.classe else ""
                 armes_proposees = get_armes_pour_classe(nom_classe, nombre=3)
                 arme_choisie = choisir_arme(armes_proposees)
-                self.equipe.joueur.equiper_arme(arme_choisie)
+                ancienne = self.equipe.joueur.equiper_arme(arme_choisie)
+                if ancienne:
+                    from inventaire import ArmeItem
+                    self.equipe.stock.ajouter(ArmeItem(ancienne))
+                    print(f"   {ancienne.nom} rangée dans le stock d'équipement.")
                 print(f"📊 Nouvelles stats : {self.equipe.joueur.stats}")
+
+            # Salle 22 : coffre Tier 2 (arme + armure)
+            if salle.contient_armes_t2:
+                self._coffre_tier2()
 
             # Salle 8 : rencontre du PNJ
             if salle.npc:
-                salle.npc.interagir(self.equipe.joueur)
+                salle.npc.interagir(self.equipe.joueur, equipe=self.equipe)
 
             # Salle 15 : libérer le compagnon + transition forêt
             if self.salle_actuelle == 15 and len(self.equipe.membres) == 1:
@@ -188,6 +209,84 @@ class Aventure:
             # Passer à la salle suivante
             self.salle_actuelle += 1
     
+    def _coffre_tier2(self):
+        """Salle 22 : le joueur choisit une arme et une armure Tier 2"""
+        nom_classe = self.equipe.joueur.classe.nom if self.equipe.joueur.classe else ""
+
+        print(f"\n{'='*60}")
+        print("✨ COFFRE DE LA FORÊT — ARMES TIER 2")
+        print(f"{'='*60}")
+        print("Des armes forgées avec la magie de la forêt s'offrent à vous.\n")
+
+        # Choix de l'arme
+        armes = get_armes_pour_classe(nom_classe, nombre=3, tier=2)
+        arme_choisie = choisir_arme(armes)
+        arme_item = ArmeItem(arme_choisie)
+        print(f"\n👥 Choisissez qui équipe {arme_choisie.nom} :")
+        self._equiper_sur_membre(arme_item, "arme")
+
+
+
+    def _equiper_sur_membre(self, item, type_objet):
+        """Affiche les membres, demande le choix, équipe et remet l'ancienne pièce en inventaire"""
+        membres = self.equipe.membres
+        for i, m in enumerate(membres, 1):
+            actuel = str(m.arme) if type_objet == "arme" else str(m.armure)
+            slot   = f"Arme : {actuel}" if type_objet == "arme" else f"Armure : {actuel}"
+            print(f"  [{i}] {m.prenom} {m.nom} — {slot}")
+
+        while True:
+            choix = input(f"  Votre choix (1-{len(membres)}) : ").strip()
+            if choix.isdigit() and 1 <= int(choix) <= len(membres):
+                membre = membres[int(choix) - 1]
+                if type_objet == "arme":
+                    ancienne = membre.equiper_arme(item.arme)
+                    print(f"\n⚔️  {membre.prenom} équipe {item.arme.nom} !")
+                else:
+                    ancienne = membre.equiper_armure(item.armure)
+                    print(f"\n🛡️  {membre.prenom} équipe {item.armure.nom} !")
+                if ancienne:
+                    if type_objet == "arme":
+                        self.equipe.stock.ajouter(ArmeItem(ancienne))
+                    else:
+                        self.equipe.stock.ajouter(ArmureItem(ancienne))
+                    print(f"   {ancienne} a été rangée dans le stock d'équipement.")
+                print(f"   📊 Stats de {membre.prenom} : {membre.stats}")
+                return
+            print("  ❌ Choix invalide.")
+
+    def _evenement_arme_t2(self):
+        """Salle 22 : le joueur choisit une arme Tier 2 pour un membre de l'équipe"""
+        print(f"\n{'='*60}")
+        print("🌟 UN COFFRE EN BOIS ANCIEN !")
+        print(f"{'='*60}")
+        print("À l'intérieur, trois armes d'une facture bien supérieure...")
+
+        nom_classe = self.equipe.joueur.classe.nom if self.equipe.joueur.classe else ""
+        armes = get_armes_pour_classe(nom_classe, nombre=3, tier=2)
+        arme_choisie = choisir_arme(armes)
+
+        # Choisir quel membre équipe l'arme
+        membres = self.equipe.membres
+        print(f"\n  Qui équipe {arme_choisie.nom} ?")
+        for i, m in enumerate(membres, 1):
+            slot = str(m.arme) if m.arme else "Aucune arme"
+            print(f"  [{i}] {m.prenom} {m.nom}  (arme actuelle : {slot})")
+
+        while True:
+            choix = input(f"  Votre choix (1-{len(membres)}) : ").strip()
+            if choix.isdigit() and 1 <= int(choix) <= len(membres):
+                membre = membres[int(choix) - 1]
+                ancienne = membre.equiper_arme(arme_choisie)
+                print(f"\n✅ {membre.prenom} équipe : {arme_choisie}")
+                if ancienne is not None:
+                    item = ArmeItem(ancienne)
+                    self.equipe.stock.ajouter(item)
+                    print(f"   {ancienne.nom} rangée dans le stock d'équipement.")
+                print(f"   Stats : {membre.stats}")
+                break
+            print("  ❌ Choix invalide.")
+
     def _transition_foret(self):
         """Message de transition entre les égouts et la forêt"""
         print(f"\n{'='*60}")
@@ -263,6 +362,7 @@ class Aventure:
     def terminer_aventure(self, victoire=False):
         """Termine l'aventure"""
         self.en_cours = False
+        self.game_over = not victoire
         
         print(f"\n{'='*50}")
         if victoire:

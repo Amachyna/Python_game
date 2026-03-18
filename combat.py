@@ -118,7 +118,7 @@ class Combat:
                 print(f"  ⚗️  Double attaque active : {self.tours_perfection} tour(s) restant(s)")
 
             action = input(
-                "Que voulez-vous faire ? (1: Attaquer | 2: Inventaire | 3: Équipement | 4: Fuir) : "
+                "Que voulez-vous faire ? (1: Attaquer | 2: Inventaire | 3: Stock équipement | 4: Équipement | 5: Fuir) : "
             ).strip()
 
             if action == "1":
@@ -143,21 +143,26 @@ class Combat:
                         print("  ❌ Choix invalide.")
 
             elif action == "2":
+                # Potions
                 utilise = self.equipe.inventaire.choisir_et_utiliser(
-                    membre, combat=self)
+                    membre, combat=self, equipe=self.equipe)
                 if utilise:
                     return True
 
             elif action == "3":
-                membre.afficher_equipement()
+                # Stock armes/armures — consulter sans consommer le tour
+                self.equipe.stock.gerer(self.equipe)
 
             elif action == "4":
+                membre.afficher_equipement()
+
+            elif action == "5":
                 print(f"\n🏃 Vous prenez la fuite !")
                 self.en_cours = False
                 return False
 
             else:
-                print("❌ Choix invalide. Tapez 1-4.")
+                print("❌ Choix invalide. Tapez 1-5.")
 
     def _choisir_cible(self):
         """Demande au joueur de choisir sa cible si plusieurs monstres vivants"""
@@ -203,7 +208,7 @@ class Combat:
         jet, critical_type = self.de20.roll_with_critical(animated=False)
 
         if critical_type == "success":
-            degats_base = stat_atk * 2
+            degats_base = int(stat_atk * 1.5)
             print(f"💥 {monstre.nom} frappe avec une force CRITIQUE !")
         elif critical_type == "fail":
             degats_base = 0
@@ -266,7 +271,7 @@ class Combat:
         jet, critical_type = self.de20.roll_with_critical(animated=True)
 
         if critical_type == "success":
-            degats_base = stat_atk * 2
+            degats_base = int(stat_atk * 1.5)
             print(f"💥 Dégâts CRITIQUES : {degats_base} !")
         elif critical_type == "fail":
             degats_base = 0
