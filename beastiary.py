@@ -17,9 +17,9 @@ class Monstre:
         return self.pv > 0
     
     def take_damage(self, damage, magique=False):
-        """Le monstre subit des dégâts physiques ou magiques"""
+        """Le monstre subit des dégâts physiques ou magiques (minimum 1)"""
         resistance = self.defense_magique if magique else self.defense
-        actual_damage = max(0, damage - resistance)
+        actual_damage = max(1, damage - resistance)
         self.pv = max(0, self.pv - actual_damage)
         return actual_damage
     
@@ -66,8 +66,9 @@ class Boss:
         return self.pv > 0
 
     def take_damage(self, damage, magique=False):
+        """Le boss subit des dégâts physiques ou magiques (minimum 1)"""
         resistance = self.defense_magique if magique else self.defense
-        actual_damage = max(0, damage - resistance)
+        actual_damage = max(1, damage - resistance)
         self.pv = max(0, self.pv - actual_damage)
         return actual_damage
 
@@ -147,7 +148,7 @@ class Slime(Monstre):
     """Slime - Un monstre avec une défense faible mais une attaque modérée"""
     
     def __init__(self):
-        super().__init__("Slime", 28, 6, 2, attaque_magique=0, defense_magique=10, vitesse=2, xp=10, gold=3)
+        super().__init__("Slime", 28, 5, 0, attaque_magique=0, defense_magique=5, vitesse=2, xp=10, gold=3)
         self.peut_defendre = True
 
     def description(self):

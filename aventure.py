@@ -3,9 +3,13 @@ from beastiary import TrainingDummy, ratempereur, chauve_souris, Slime, rat, rat
 from combat import Combat
 from weapons import get_armes_pour_classe, choisir_arme
 from npc import Marchand
+from inventaire import PotionSoin, PotionPerfection
+from equipe import Equipe, creer_compagnon
 
 # Monstres disponibles dans les salles aléatoires
-MONSTRES_ALEATOIRES = [chauve_souris, Slime, rat, ratgéant]
+# Pool de monstres selon la progression dans les salles
+MONSTRES_DEBUT  = [chauve_souris, Slime, rat]          # Salles 2-8
+MONSTRES_MILIEU = [chauve_souris, Slime, rat, ratgéant] # Salles 9+
 
 
 class Salle:
@@ -17,6 +21,7 @@ class Salle:
         self.monstres = []        # Pour les salles avec plusieurs monstres
         self.contient_armes = (numero == 5)
         self.est_salle_soin = False
+        self.est_salle_loot = False
         self.npc = None
 
         # Salles scriptées
@@ -27,19 +32,22 @@ class Salle:
         elif numero == 8:
             self.npc = Marchand()
         elif numero not in (1, 5, 8, 15):
-            # Salles libres : 75% monstre(s), 25% soin
-            if random.random() < 0.70:
-                # 1 ou 2 monstres aléatoires
+            # Salles libres : 65% monstre(s), 25% soin, 10% loot
+            tirage = random.random()
+            if tirage < 0.65:
                 nb = random.randint(1, 2)
-                self.monstres = [random.choice(MONSTRES_ALEATOIRES)() for _ in range(nb)]
-                self.monstre = self.monstres[0]  # Compatibilité avec le reste du code
-            else:
+                pool = MONSTRES_MILIEU if numero >= 9 else MONSTRES_DEBUT
+                self.monstres = [random.choice(pool)() for _ in range(nb)]
+                self.monstre = self.monstres[0]
+            elif tirage < 0.90:
                 self.est_salle_soin = True
+            else:
+                self.est_salle_loot = True
     
     def afficher(self):
         """Affiche la salle actuelle"""
         print(f"\n{'='*50}")
-        print(f"🚪 SALLE {self.numero}/15")
+        print(f"🚪 SALLE {self.numero}/20")
         print(f"{'='*50}")
         
         if self.est_salle_soin:
@@ -51,6 +59,8 @@ class Salle:
             print(f"⚠️  {noms} se trouvent dans cette salle !")
         elif self.monstre:
             print(f"⚠️  Un {self.monstre.nom} se trouve dans cette salle !")
+        elif self.est_salle_loot:
+            print(f"💎 Un objet scintille dans l'obscurité...")
         elif self.contient_armes:
             print(f"✨ Un coffre mystérieux brille dans cette salle...")
         else:
@@ -67,10 +77,15 @@ class Salle:
 class Aventure:
     """Classe pour gérer l'aventure du joueur"""
     
-    def __init__(self, personnage):
-        self.personnage = personnage
+    def __init__(self, equipe_ou_personnage):
+        if isinstance(equipe_ou_personnage, Equipe):
+            self.equipe     = equipe_ou_personnage
+            self.personnage = equipe_ou_personnage.joueur
+        else:
+            self.equipe     = Equipe(equipe_ou_personnage)
+            self.personnage = equipe_ou_personnage
         self.salle_actuelle = 0
-        self.nombre_salles_total = 15
+        self.nombre_salles_total = 20
         self.en_cours = False
     
     def commencer(self):
@@ -90,53 +105,52 @@ class Aventure:
             salle = Salle(self.salle_actuelle)
             salle.afficher()
             
+            # Salle loot
+            if salle.est_salle_loot:
+                self._gerer_salle_loot()
+
             # Salle soin
-            if salle.est_salle_soin:
-                soin = max(1, int(self.personnage.stats.pv_max * 0.25))
-                avant = self.personnage.stats.pv
-                self.personnage.stats.pv = min(self.personnage.stats.pv_max,
-                                               self.personnage.stats.pv + soin)
-                reel = self.personnage.stats.pv - avant
-                print(f"\n💚 La lumière vous enveloppe et vous soigne de {reel} PV !")
-                print(f"❤️  PV : {self.personnage.stats.pv}/{self.personnage.stats.pv_max}")
+            elif salle.est_salle_soin:
+                print(f"\n💚 La lumière dorée enveloppe toute l'équipe !")
+                for m in self.equipe.membres:
+                    if m.stats.pv > 0:
+                        soin = max(1, int(m.stats.pv_max * 0.25))
+                        avant = m.stats.pv
+                        m.stats.pv = min(m.stats.pv_max, m.stats.pv + soin)
+                        reel = m.stats.pv - avant
+                        print(f"   {m.prenom} récupère {reel} PV → {m.stats.pv}/{m.stats.pv_max} PV")
 
-            # Si la salle contient des monstres, lancer les combats un par un
-            elif salle.a_monstre():
-                fuite = False
-                for monstre in salle.monstres if salle.monstres else [salle.monstre]:
-                    if not self.personnage.stats.pv > 0:
-                        break
-                    if len(salle.monstres) > 1:
-                        print(f"\n🔀 Prochain adversaire : {monstre.nom} !")
-                    combat = Combat(self.personnage, monstre)
-                    combat.commencer()
+            # Si la salle contient des monstres, un seul combat avec tous
+            elif not salle.npc and not salle.est_salle_loot and salle.a_monstre():
+                liste = salle.monstres if salle.monstres else [salle.monstre]
+                combat = Combat(self.equipe, liste)
+                combat.commencer()
 
-                    if self.personnage.stats.pv <= 0:
-                        self.terminer_aventure(victoire=False)
-                        fuite = True
-                        break
-                    elif monstre.is_alive():
-                        # Fuite
-                        self.terminer_aventure(victoire=False)
-                        fuite = True
-                        break
-                    else:
-                        print(f"\n✅ Vous avez vaincu {monstre.nom} !")
-
-                if fuite:
+                if not self.equipe.est_en_vie():
+                    self.terminer_aventure(victoire=False)
+                    break
+                elif any(m.is_alive() for m in liste):
+                    # Fuite
+                    self.terminer_aventure(victoire=False)
                     break
             
             # Salle 5 : événement de choix d'arme
             if salle.contient_armes:
-                nom_classe = self.personnage.classe.nom if self.personnage.classe else ""
+                nom_classe = self.equipe.joueur.classe.nom if self.equipe.joueur.classe else ""
                 armes_proposees = get_armes_pour_classe(nom_classe, nombre=3)
                 arme_choisie = choisir_arme(armes_proposees)
-                self.personnage.equiper_arme(arme_choisie)
-                print(f"📊 Nouvelles stats : {self.personnage.stats}")
+                self.equipe.joueur.equiper_arme(arme_choisie)
+                print(f"📊 Nouvelles stats : {self.equipe.joueur.stats}")
 
             # Salle 8 : rencontre du PNJ
             if salle.npc:
-                salle.npc.interagir(self.personnage)
+                salle.npc.interagir(self.equipe.joueur)
+
+            # Salle 15 : libérer le compagnon après victoire contre le Rat Empereur
+            if self.salle_actuelle == 15 and len(self.equipe.membres) == 1:
+                monstres_salle = salle.monstres if salle.monstres else ([salle.monstre] if salle.monstre else [])
+                if not any(m.is_alive() for m in monstres_salle):
+                    self._liberer_compagnon()
 
             # Vérifier si c'est la dernière salle
             if self.salle_actuelle == self.nombre_salles_total:
@@ -152,6 +166,42 @@ class Aventure:
             # Passer à la salle suivante
             self.salle_actuelle += 1
     
+    def _liberer_compagnon(self):
+        """Déclenche la rencontre du compagnon après la victoire contre le Rat Empereur"""
+        print(f"\n{'='*60}")
+        print("🔓 Dans un recoin sombre de la salle, vous apercevez une silhouette...")
+        print("   Un survivant, enchaîné au mur. Vous brisez ses chaînes.")
+        print(f"{'='*60}")
+        compagnon = creer_compagnon(self.personnage)
+        self.equipe.ajouter_membre(compagnon)
+
+    def _gerer_salle_loot(self):
+        """Gère l'événement d'une salle à butin"""
+        tirage = random.random()
+
+        if tirage < 0.40:
+            xp = random.randint(15, 30)
+            print(f"\n💡 Vous trouvez des inscriptions runiques et gagnez {xp} XP !")
+            self.personnage.gagner_xp(xp, 0)
+
+        elif tirage < 0.70:
+            gold = random.randint(5, 20)
+            self.personnage.gold += gold
+            print(f"\n💰 Vous trouvez une bourse cachée : +{gold} Gold !")
+            print(f"   Gold total : {self.personnage.gold}")
+
+        elif tirage < 0.85:
+            objet = PotionSoin()
+            if self.equipe.inventaire.ajouter(objet):
+                print(f"\n🧪 Vous trouvez une Potion de soin !")
+                print(f"   Inventaire équipe : {self.equipe.inventaire}")
+
+        else:
+            objet = PotionPerfection()
+            if self.equipe.inventaire.ajouter(objet):
+                print(f"\n⚗️  Vous trouvez une Potion de perfection ! (Rare !)")
+                print(f"   Inventaire équipe : {self.equipe.inventaire}")
+
     def demander_continuer(self):
         """Demande au joueur s'il veut passer à la salle suivante"""
         print(f"\n{'─'*50}")
