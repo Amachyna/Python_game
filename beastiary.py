@@ -148,7 +148,7 @@ class Slime(Monstre):
     """Slime - Un monstre avec une défense faible mais une attaque modérée"""
     
     def __init__(self):
-        super().__init__("Slime", 28, 5, 0, attaque_magique=0, defense_magique=5, vitesse=2, xp=10, gold=3)
+        super().__init__("Slime", 28, 6, 2, attaque_magique=0, defense_magique=10, vitesse=2, xp=10, gold=3)
         self.peut_defendre = True
 
     def description(self):
@@ -206,4 +206,97 @@ class ratempereur(Boss):
             defense_magique=8,
             vitesse=8,
             reward={"xp": 70, "gold": 15}
+        )
+
+# ─── Monstres de la Forêt ────────────────────────────────────────────────────
+
+class loup_alpha(Monstre):
+    """Loup Alpha - Plus grand et plus féroce que le loup ordinaire"""
+    def __init__(self):
+        super().__init__("Loup Alpha", 45, 22, 6, vitesse=10, xp=30, gold=10)
+        self.peut_defendre = True
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | ATK: {self.attaque} | DEF: {self.defense}"
+
+
+class araignee_geante(Monstre):
+    """Araignée Géante - Empoisonne ses proies avec des attaques magiques"""
+    def __init__(self):
+        super().__init__("Araignée Géante", 35, 15, 5, attaque_magique=14, defense_magique=4, vitesse=7, xp=28, gold=9)
+        self.peut_defendre = True
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | ATK: {self.attaque} | ATK MAG: {self.attaque_magique}"
+
+
+class goblin_archer(Monstre):
+    """Goblin Archer - Attaque à distance, rapide mais fragile"""
+    def __init__(self):
+        super().__init__("Goblin Archer", 30, 18, 3, vitesse=9, xp=25, gold=8)
+        self.peut_defendre = True
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | ATK: {self.attaque} | DEF: {self.defense}"
+
+
+class ent(Monstre):
+    """Ent - Arbre animé, très résistant physiquement et magiquement"""
+    def __init__(self):
+        super().__init__("Ent", 80, 14, 12, defense_magique=8, vitesse=2, xp=40, gold=15)
+        self.peut_defendre = True
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | ATK: {self.attaque} | DEF: {self.defense}"
+
+
+class esprit_foret(Monstre):
+    """Esprit de la Forêt - Entité magique, très puissant magiquement"""
+    def __init__(self):
+        super().__init__("Esprit de la Forêt", 30, 5, 2, attaque_magique=22, defense_magique=12, vitesse=8, xp=35, gold=12)
+        self.peut_defendre = True
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | ATK MAG: {self.attaque_magique} | DEF MAG: {self.defense_magique}"
+
+
+class sanglier_enrage(Monstre):
+    """Sanglier Enragé - Charge brutale, ATK physique très élevée"""
+    def __init__(self):
+        super().__init__("Sanglier Enragé", 55, 25, 8, vitesse=6, xp=32, gold=11)
+        self.peut_defendre = True
+
+    def description(self):
+        return f"{self.nom} | HP: {self.pv}/{self.pv_max} | ATK: {self.attaque} | DEF: {self.defense}"
+
+
+# ─── Boss de la Forêt ────────────────────────────────────────────────────────
+
+class gobelin_sergant(Boss):
+    """Gobelin Sergant - Boss de la ville menacée, salle 20"""
+    def __init__(self):
+        super().__init__(
+            name="Gobelin Sergant",
+            hp=120,
+            attack=18,
+            defense=10,
+            attaque_magique=8,
+            defense_magique=6,
+            vitesse=7,
+            reward={"xp": 150, "gold": 50}
+        )
+
+
+class roi_gobelin(Boss):
+    """Roi Gobelin - Boss final de la forêt, salle 30"""
+    def __init__(self):
+        super().__init__(
+            name="Roi Gobelin",
+            hp=200,
+            attack=22,
+            defense=14,
+            attaque_magique=18,
+            defense_magique=12,
+            vitesse=8,
+            reward={"xp": 300, "gold": 100}
         )

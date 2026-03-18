@@ -1,15 +1,21 @@
 import random
-from beastiary import TrainingDummy, ratempereur, chauve_souris, Slime, rat, ratgéant
+from beastiary import (TrainingDummy, ratempereur, chauve_souris, Slime, rat, ratgéant,
+                        loup_alpha, araignee_geante, goblin_archer, ent,
+                        esprit_foret, sanglier_enrage,
+                        gobelin_sergant, roi_gobelin)
 from combat import Combat
 from weapons import get_armes_pour_classe, choisir_arme
 from npc import Marchand
 from inventaire import PotionSoin, PotionPerfection
+from dialogues.villageois import VICTOIRE_SERGANT
 from equipe import Equipe, creer_compagnon
 
 # Monstres disponibles dans les salles aléatoires
 # Pool de monstres selon la progression dans les salles
-MONSTRES_DEBUT  = [chauve_souris, Slime, rat]          # Salles 2-8
-MONSTRES_MILIEU = [chauve_souris, Slime, rat, ratgéant] # Salles 9+
+MONSTRES_DEBUT  = [chauve_souris, Slime, rat]                              # Salles 2-8
+MONSTRES_MILIEU = [chauve_souris, Slime, rat, ratgéant]                    # Salles 9-15
+MONSTRES_FORET  = [loup_alpha, araignee_geante, goblin_archer, ent,
+                   esprit_foret, sanglier_enrage]                           # Salles 16-30
 
 
 class Salle:
@@ -29,14 +35,23 @@ class Salle:
             self.monstre = TrainingDummy()
         elif numero == 15:
             self.monstre = ratempereur()
+        elif numero == 20:
+            self.monstre = gobelin_sergant()
+        elif numero == 30:
+            self.monstre = roi_gobelin()
         elif numero == 8:
             self.npc = Marchand()
-        elif numero not in (1, 5, 8, 15):
+        elif numero not in (1, 5, 8, 15, 20, 30):
             # Salles libres : 65% monstre(s), 25% soin, 10% loot
             tirage = random.random()
             if tirage < 0.65:
                 nb = random.randint(1, 2)
-                pool = MONSTRES_MILIEU if numero >= 9 else MONSTRES_DEBUT
+                if numero >= 16:
+                    pool = MONSTRES_FORET
+                elif numero >= 9:
+                    pool = MONSTRES_MILIEU
+                else:
+                    pool = MONSTRES_DEBUT
                 self.monstres = [random.choice(pool)() for _ in range(nb)]
                 self.monstre = self.monstres[0]
             elif tirage < 0.90:
@@ -47,7 +62,7 @@ class Salle:
     def afficher(self):
         """Affiche la salle actuelle"""
         print(f"\n{'='*50}")
-        print(f"🚪 SALLE {self.numero}/20")
+        print(f"🚪 SALLE {self.numero}/30")
         print(f"{'='*50}")
         
         if self.est_salle_soin:
@@ -85,7 +100,7 @@ class Aventure:
             self.equipe     = Equipe(equipe_ou_personnage)
             self.personnage = equipe_ou_personnage
         self.salle_actuelle = 0
-        self.nombre_salles_total = 20
+        self.nombre_salles_total = 30
         self.en_cours = False
     
     def commencer(self):
@@ -146,11 +161,18 @@ class Aventure:
             if salle.npc:
                 salle.npc.interagir(self.equipe.joueur)
 
-            # Salle 15 : libérer le compagnon après victoire contre le Rat Empereur
+            # Salle 15 : libérer le compagnon + transition forêt
             if self.salle_actuelle == 15 and len(self.equipe.membres) == 1:
                 monstres_salle = salle.monstres if salle.monstres else ([salle.monstre] if salle.monstre else [])
                 if not any(m.is_alive() for m in monstres_salle):
                     self._liberer_compagnon()
+                    self._transition_foret()
+
+            # Salle 20 : dialogue villageois après victoire contre le Gobelin Sergant
+            if self.salle_actuelle == 20:
+                monstres_salle = salle.monstres if salle.monstres else ([salle.monstre] if salle.monstre else [])
+                if not any(m.is_alive() for m in monstres_salle):
+                    self._dialogue_villageois()
 
             # Vérifier si c'est la dernière salle
             if self.salle_actuelle == self.nombre_salles_total:
@@ -166,6 +188,27 @@ class Aventure:
             # Passer à la salle suivante
             self.salle_actuelle += 1
     
+    def _transition_foret(self):
+        """Message de transition entre les égouts et la forêt"""
+        print(f"\n{'='*60}")
+        print("🌲 VOUS SORTEZ DES ÉGOUTS...")
+        print(f"{'='*60}")
+        print("L'air frais de la forêt vous accueille après l'obscurité des égouts.")
+        print("Mais la forêt n'est pas sûre... de nouveaux dangers vous attendent.")
+        input("  [ Appuyez sur Entrée pour continuer... ]")
+
+    def _dialogue_villageois(self):
+        """Dialogue des villageois après la victoire contre le Gobelin Sergant"""
+        print(f"\n{'='*60}")
+        print("🏘️  VOUS ARRIVEZ AU VILLAGE...")
+        print(f"{'='*60}")
+        print(f"\n🧑 Villageois :")
+        print()
+        for ligne in VICTOIRE_SERGANT.split('\n'):
+            print(f"   {ligne}")
+        print(f"{'='*60}")
+        input("  [ Appuyez sur Entrée pour continuer... ]")
+
     def _liberer_compagnon(self):
         """Déclenche la rencontre du compagnon après la victoire contre le Rat Empereur"""
         print(f"\n{'='*60}")
