@@ -4,11 +4,13 @@
 """
 Fichier principal du jeu
 """
-from introduction import Introduction
+
 from identiterUser import IdentiteJoueur
+from introduction import Introduction
 from breed import choisir_race
 from classe import choisir_classe
 from aventure import Aventure
+from introduction import Introduction
 
 
 def afficher_titre():
@@ -48,7 +50,8 @@ def menu_principal():
     print("-"*50)
     print("1. Commencer l'aventure")
     print("2. Voir les informations du personnage")
-    print("3. Quitter le jeu")
+    print("3. Voir l'équipement")
+    print("4. Quitter le jeu")
     print("-"*50)
     
     choix = input("\nVotre choix : ")
@@ -57,10 +60,8 @@ def menu_principal():
 
 def main():
     """Fonction principale du jeu"""
-    afficher_titre()
-    intro = Introduction("Fantasy Quest")
-    intro.lancer()
-    
+    Introduction("Les Égouts de la Capitale").lancer()
+
     # Création du personnage au démarrage
     personnage = creer_personnage()
     
@@ -76,13 +77,16 @@ def main():
             
         elif choix == "2":
             personnage.afficher_informations_completes()
-            
+
         elif choix == "3":
+            personnage.afficher_equipement()
+
+        elif choix == "4":
             print(f"\n👋 Au revoir {personnage.prenom} ! À bientôt !")
             en_jeu = False
-            
+
         else:
-            print("\n❌ Choix invalide. Veuillez choisir 1, 2 ou 3.")
+            print("\n❌ Choix invalide. Veuillez choisir 1, 2, 3 ou 4.")
 
 
 if __name__ == "__main__":

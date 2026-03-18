@@ -1,20 +1,25 @@
 class Monstre:
     """Classe de base pour tous les monstres"""
     
-    def __init__(self, nom, pv, attaque, defense):
+    def __init__(self, nom, pv, attaque, defense, attaque_magique=0, defense_magique=0, vitesse=3, xp=0, gold=0):
         self.nom = nom
         self.pv_max = pv
         self.pv = pv
         self.attaque = attaque
         self.defense = defense
+        self.attaque_magique = attaque_magique
+        self.defense_magique = defense_magique
+        self.vitesse = vitesse
+        self.reward = {"xp": xp, "gold": gold}
     
     def is_alive(self):
         """Vérifie si le monstre est vivant"""
         return self.pv > 0
     
-    def take_damage(self, damage):
-        """Le monstre subit des dégâts"""
-        actual_damage = max(0, damage - self.defense)
+    def take_damage(self, damage, magique=False):
+        """Le monstre subit des dégâts physiques ou magiques"""
+        resistance = self.defense_magique if magique else self.defense
+        actual_damage = max(0, damage - resistance)
         self.pv = max(0, self.pv - actual_damage)
         return actual_damage
     
@@ -23,7 +28,7 @@ class Monstre:
         barre_vie = self._creer_barre_vie()
         print(f"\n🎯 {self.nom}")
         print(f"   {barre_vie} {self.pv}/{self.pv_max} PV")
-        print(f"   🛡️  DEF: {self.defense}")
+        print(f"   ⚔️  ATK: {self.attaque} | 🛡️  DEF: {self.defense} | ✨ ATK MAG: {self.attaque_magique} | 🔮 DEF MAG: {self.defense_magique} | 💨 VIT: {self.vitesse}")
     
     def _creer_barre_vie(self):
         """Crée une barre de vie visuelle"""
@@ -46,19 +51,23 @@ class Monstre:
     
 
 class Boss:
-    def __init__(self, name, hp, attack, defense, reward):
+    def __init__(self, name, hp, attack, defense, reward, attaque_magique=0, defense_magique=0, vitesse=3):
         self.nom = name
         self.pv = hp
         self.pv_max = hp
         self.attaque = attack
         self.defense = defense
         self.reward = reward
+        self.attaque_magique = attaque_magique
+        self.defense_magique = defense_magique
+        self.vitesse = vitesse
 
     def is_alive(self):
         return self.pv > 0
 
-    def take_damage(self, damage):
-        actual_damage = max(0, damage - self.defense)
+    def take_damage(self, damage, magique=False):
+        resistance = self.defense_magique if magique else self.defense
+        actual_damage = max(0, damage - resistance)
         self.pv = max(0, self.pv - actual_damage)
         return actual_damage
 
@@ -69,9 +78,9 @@ class Boss:
     def afficher_stats(self):
         """Affiche les statistiques du boss (compatible avec Combat)"""
         barre_vie = self._creer_barre_vie()
-        print(f"\n\U0001f451 {self.nom} (BOSS)")
+        print(f"\n👑 {self.nom} (BOSS)")
         print(f"   {barre_vie} {self.pv}/{self.pv_max} PV")
-        print(f"   \u2694\ufe0f  ATK: {self.attaque} | \U0001f6e1\ufe0f  DEF: {self.defense}")
+        print(f"   ⚔️  ATK: {self.attaque} | 🛡️  DEF: {self.defense} | ✨ ATK MAG: {self.attaque_magique} | 🔮 DEF MAG: {self.defense_magique} | 💨 VIT: {self.vitesse}")
 
     def _creer_barre_vie(self):
         longueur_barre = 20
@@ -98,7 +107,7 @@ class Goblin(Monstre):
     """Goblin - Un monstre basique avec une attaque modérée"""
     
     def __init__(self):
-        super().__init__("Goblin", 20, 5, 5)
+        super().__init__("Goblin", 18, 16, 4, vitesse=4, xp=15, gold=5)
         self.peut_defendre = True
 
     def description(self):
@@ -108,7 +117,7 @@ class loup(Monstre):
     """Loup - Un monstre rapide avec une attaque plus élevée"""
     
     def __init__(self):
-        super().__init__("Loup", 25, 7, 3)
+        super().__init__("Loup", 20, 15, 3, defense_magique=0, vitesse=9, xp=20, gold=7)
         self.peut_defendre = True
 
     def description(self):
@@ -118,7 +127,7 @@ class kobold(Monstre):
     """Kobold - Un monstre avec une défense élevée mais une attaque plus faible"""
     
     def __init__(self):
-        super().__init__("Kobold", 15, 4, 8)
+        super().__init__("Kobold", 22, 7, 14, defense_magique=1, vitesse=2, xp=18, gold=6)
         self.peut_defendre = True
 
     def description(self):
@@ -128,7 +137,7 @@ class skeleton(Monstre):
     """Squelette - Un monstre avec une attaque modérée et une défense faible"""
     
     def __init__(self):
-        super().__init__("Squelette", 10, 6, 2)
+        super().__init__("Squelette", 12, 4, 1, attaque_magique=16, defense_magique=6, vitesse=5, xp=20, gold=8)
         self.peut_defendre = True
 
     def description(self):
@@ -138,7 +147,7 @@ class Slime(Monstre):
     """Slime - Un monstre avec une défense faible mais une attaque modérée"""
     
     def __init__(self):
-        super().__init__("Slime", 12, 5, 1)
+        super().__init__("Slime", 28, 6, 2, attaque_magique=0, defense_magique=10, vitesse=2, xp=10, gold=3)
         self.peut_defendre = True
 
     def description(self):
@@ -148,7 +157,7 @@ class rat(Monstre):
     """Rat - Un monstre rapide avec une attaque faible"""
     
     def __init__(self):
-        super().__init__("Rat", 8, 3, 1)
+        super().__init__("Rat", 10, 8, 1, vitesse=8, xp=8, gold=2)
         self.peut_defendre = True
 
     def description(self):
@@ -158,7 +167,7 @@ class ratgéant(Monstre):
     """Rat Géant - Un monstre rapide avec une attaque plus élevée que le Rat normal"""
     
     def __init__(self):
-        super().__init__("Rat Géant", 15, 5, 2)
+        super().__init__("Rat Géant", 30, 8, 8, vitesse=2, xp=12, gold=4)
         self.peut_defendre = True
 
     def description(self):
@@ -168,7 +177,7 @@ class chauve_souris(Monstre):
     """Chauve-souris - Un monstre rapide avec une attaque faible mais une grande agilité"""
     
     def __init__(self):
-        super().__init__("Chauve-souris", 7, 4, 1)
+        super().__init__("Chauve-souris", 6, 7, 0, vitesse=12, xp=8, gold=2)
         self.peut_defendre = True
 
     def description(self):
@@ -180,7 +189,7 @@ class GoblinBoss(Boss):
         super().__init__(
             name="Goblin",
             hp=60,
-            attack=8,
+            attack=16,
             defense=2,
             reward={"xp": 100, "gold": 30}
         )
@@ -189,8 +198,11 @@ class ratempereur(Boss):
     def __init__(self):
         super().__init__(
             name="Rat Empereur",
-            hp=40,
-            attack=12,
-            defense=3,
+            hp=60,
+            attack=10,
+            defense=8,
+            attaque_magique=10,
+            defense_magique=8,
+            vitesse=8,
             reward={"xp": 70, "gold": 15}
         )
