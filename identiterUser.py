@@ -1,7 +1,7 @@
 class Statistiques:
     """Classe pour gérer les statistiques du personnage"""
     
-    def __init__(self, pv=20, attaque=3, defense=5):
+    def __init__(self, pv=20, attaque=8, defense=5):
         self._pv = pv
         self._pv_max = pv
         self._attaque = attaque

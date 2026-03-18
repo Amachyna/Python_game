@@ -108,10 +108,45 @@ class Combat:
         self.monstre.afficher_stats()
     
     def tour_monstre(self):
-        """Le monstre attaque le joueur (pour les futurs monstres)"""
+        """Le monstre attaque le joueur"""
         print(f"\n🔴 C'est au tour de {self.monstre.nom} !")
-        # À implémenter pour les monstres qui attaquent
-        pass
+
+        # Récupérer l'attaque du monstre (Boss ou Monstre classique)
+        attaque_monstre = getattr(self.monstre, 'attaque', 0)
+
+        # Lancer le D20 du monstre
+        jet, critical_type = self.de20.roll_with_critical(animated=False)
+
+        if critical_type == "success":
+            degats_base = attaque_monstre * 2
+            print(f"💥 {self.monstre.nom} frappe avec une force CRITIQUE !")
+        elif critical_type == "fail":
+            degats_base = 0
+            print(f"😅 {self.monstre.nom} rate complètement son attaque !")
+        else:
+            multiplicateur = 0.5 + (jet / 20) * 0.5
+            degats_base = int(attaque_monstre * multiplicateur)
+            if jet >= 15:
+                print(f"😤 {self.monstre.nom} frappe fort ! (Jet: {jet}/20)")
+            elif jet >= 10:
+                print(f"😠 {self.monstre.nom} vous attaque. (Jet: {jet}/20)")
+            else:
+                print(f"😑 {self.monstre.nom} frappe faiblement... (Jet: {jet}/20)")
+
+        # Appliquer les dégâts en tenant compte de la défense du joueur
+        if degats_base > 0:
+            degats_reduits = max(0, degats_base - self.personnage.stats.defense)
+            self.personnage.stats.pv -= degats_reduits
+            if degats_reduits > 0:
+                print(f"🩸 Vous subissez {degats_reduits} dégâts ! ({degats_base} - {self.personnage.stats.defense} DEF)")
+            else:
+                print(f"🛡️  Votre défense absorbe entièrement l'attaque !")
+        else:
+            print(f"🛡️  Vous ne subissez aucun dégât.")
+
+        # Afficher les PV du joueur après l'attaque
+        barre_vie = self._creer_barre_vie(self.personnage.stats.pv, self.personnage.stats.pv_max)
+        print(f"❤️  {self.personnage.prenom} : {barre_vie} {self.personnage.stats.pv}/{self.personnage.stats.pv_max} PV")
     
     def afficher_stats_combat(self):
         """Affiche les stats des deux combattants"""
