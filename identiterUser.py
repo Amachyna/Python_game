@@ -1,11 +1,14 @@
 class Statistiques:
     """Classe pour gérer les statistiques du personnage"""
     
-    def __init__(self, pv=20, attaque=3, defense=5):
+    def __init__(self, pv=20, attaque=3, defense=5, attaque_magique=2, defense_magique=3, vitesse=5):
         self._pv = pv
         self._pv_max = pv
         self._attaque = attaque
         self._defense = defense
+        self._attaque_magique = attaque_magique
+        self._defense_magique = defense_magique
+        self._vitesse = vitesse
     
     @property
     def pv(self):
@@ -54,16 +57,47 @@ class Statistiques:
         """Setter pour la défense"""
         if valeur >= 0:
             self._defense = valeur
-    
+
+    @property
+    def attaque_magique(self):
+        return self._attaque_magique
+
+    @attaque_magique.setter
+    def attaque_magique(self, valeur):
+        if valeur >= 0:
+            self._attaque_magique = valeur
+
+    @property
+    def defense_magique(self):
+        return self._defense_magique
+
+    @defense_magique.setter
+    def defense_magique(self, valeur):
+        if valeur >= 0:
+            self._defense_magique = valeur
+
+    @property
+    def vitesse(self):
+        return self._vitesse
+
+    @vitesse.setter
+    def vitesse(self, valeur):
+        if valeur >= 0:
+            self._vitesse = valeur
+
     def afficher_stats(self):
         """Affiche les statistiques du personnage"""
         print(f"\n📊 === STATISTIQUES ===")
-        print(f"❤️  Points de Vie : {self._pv}/{self._pv_max}")
-        print(f"⚔️  Attaque        : {self._attaque}")
-        print(f"🛡️  Défense       : {self._defense}")
+        print(f"❤️  Points de Vie    : {self._pv}/{self._pv_max}")
+        print(f"⚔️  Attaque          : {self._attaque}")
+        print(f"🛡️  Défense          : {self._defense}")
+        print(f"✨ Attaque magique  : {self._attaque_magique}")
+        print(f"🔮 Défense magique  : {self._defense_magique}")
+        print(f"💨 Vitesse          : {self._vitesse}")
     
     def __str__(self):
-        return f"PV: {self._pv}/{self._pv_max} | ATK: {self._attaque} | DEF: {self._defense}"
+        return (f"PV: {self._pv}/{self._pv_max} | ATK: {self._attaque} | DEF: {self._defense} | "
+                f"ATK MAG: {self._attaque_magique} | DEF MAG: {self._defense_magique} | VIT: {self._vitesse}")
 
 
 class Nom:
@@ -172,8 +206,14 @@ class IdentiteJoueur:
         self.nom = Nom()
         self.prenom = Prenom()
         self.stats = Statistiques()  # Ajout des statistiques initiales
-        self.race = None  # Race du personnage
+        self.race = None   # Race du personnage
         self.classe = None  # Classe du personnage
+        self.arme = None    # Arme équipée
+        self.armure = None  # Armure équipée
+        self.niveau = 1
+        self.xp = 0
+        self.xp_prochain_niveau = 50  # XP nécessaire pour le niveau 2
+        self.gold = 0
     
     def definir_race(self, race):
         """Définit la race du personnage et applique les bonus"""
@@ -185,6 +225,120 @@ class IdentiteJoueur:
         self.classe = classe
         self.classe.apply_bonus(self.stats)
     
+    def equiper_arme(self, arme):
+        """Équipe une nouvelle arme en retirant les bonus de la précédente"""
+        if self.arme is not None:
+            self.stats.attaque         -= self.arme.bonus_attaque
+            self.stats.defense         -= self.arme.bonus_defense
+            self.stats.attaque_magique -= self.arme.bonus_attaque_magique
+            self.stats.defense_magique -= self.arme.bonus_defense_magique
+
+        self.arme = arme
+        if arme is not None:
+            self.stats.attaque         += arme.bonus_attaque
+            self.stats.defense         += arme.bonus_defense
+            self.stats.attaque_magique += arme.bonus_attaque_magique
+            self.stats.defense_magique += arme.bonus_defense_magique
+
+    def equiper_armure(self, armure):
+        """Équipe une nouvelle armure en retirant les bonus de la précédente"""
+        if self.armure is not None:
+            self.stats.defense         -= self.armure.bonus_defense
+            self.stats.defense_magique -= self.armure.bonus_defense_magique
+            self.stats.vitesse         -= self.armure.bonus_vitesse
+
+        self.armure = armure
+        if armure is not None:
+            self.stats.defense         += armure.bonus_defense
+            self.stats.defense_magique += armure.bonus_defense_magique
+            self.stats.vitesse         += armure.bonus_vitesse
+
+    def gagner_xp(self, xp_gagne, gold_gagne=0):
+        """Gagne de l'XP et de l'or, gère la montée de niveau"""
+        self.xp += xp_gagne
+        self.gold += gold_gagne
+        print(f"\n✨ +{xp_gagne} XP  |  💰 +{gold_gagne} Gold")
+        print(f"   XP : {self.xp}/{self.xp_prochain_niveau}  |  Gold total : {self.gold}")
+
+        # Boucle au cas où plusieurs niveaux sont gagnés d'un coup
+        while self.xp >= self.xp_prochain_niveau:
+            self.xp -= self.xp_prochain_niveau
+            self._monter_niveau()
+
+    def _monter_niveau(self):
+        """Gère la montée de niveau"""
+        self.niveau += 1
+        # XP requis augmente de 50% à chaque niveau
+        self.xp_prochain_niveau = int(self.xp_prochain_niveau * 1.5)
+
+        print(f"\n{'🌟'*30}")
+        print(f"🌟 NIVEAU {self.niveau} ATTEINT !")
+        print(f"{'🌟'*30}")
+        print("Toutes vos statistiques augmentent de 1 !")
+
+        # +1 à toutes les stats
+        self.stats.pv_max      += 1
+        self.stats.pv          += 1
+        self.stats.attaque     += 1
+        self.stats.defense     += 1
+        self.stats.attaque_magique  += 1
+        self.stats.defense_magique  += 1
+        self.stats.vitesse     += 1
+
+        print(f"📊 Stats actuelles : {self.stats}")
+
+        # Point de compétence à placer
+        self._attribuer_point_competence()
+
+    def _attribuer_point_competence(self):
+        """Permet au joueur de placer son point de compétence"""
+        stats_choices = {
+            "1": ("pv_max",          "❤️  PV Max"),
+            "2": ("attaque",         "⚔️  Attaque"),
+            "3": ("defense",         "🛡️  Défense"),
+            "4": ("attaque_magique", "✨ Attaque Magique"),
+            "5": ("defense_magique", "🔮 Défense Magique"),
+            "6": ("vitesse",         "💨 Vitesse"),
+        }
+        print(f"\n🎯 Vous avez 1 point de compétence à placer !")
+        print("   Choisissez la statistique à améliorer :")
+        for key, (_, label) in stats_choices.items():
+            valeur = getattr(self.stats, _.replace("pv_max", "pv_max"), 0)
+            print(f"   {key}. {label} (actuel : {getattr(self.stats, _)})")
+        print()
+
+        while True:
+            choix = input("   Votre choix (1-6) : ").strip()
+            if choix in stats_choices:
+                attr, label = stats_choices[choix]
+                if attr == "pv_max":
+                    self.stats.pv_max += 1
+                    self.stats.pv     += 1
+                else:
+                    setattr(self.stats, attr, getattr(self.stats, attr) + 1)
+                print(f"\n✅ {label} améliorée !")
+                print(f"📊 Stats finales : {self.stats}")
+                break
+            else:
+                print("   ❌ Choix invalide. Entrez un nombre entre 1 et 6.")
+
+    def afficher_equipement(self):
+        """Affiche l'équipement actuel du joueur"""
+        print(f"\n{'='*50}")
+        print(f"🎒 ÉQUIPEMENT")
+        print(f"{'='*50}")
+        if self.arme:
+            print(f"  Arme :")
+            self.arme.afficher()
+        else:
+            print(f"  Arme    : Aucune arme équipée.")
+        if self.armure:
+            print(f"\n  Armure :")
+            self.armure.afficher()
+        else:
+            print(f"  Armure  : Aucune armure équipée.")
+        print(f"{'='*50}")
+
     def creer_identite(self):
         """Demande au joueur de créer son identité complète"""
         print("\n=== Création de votre personnage ===\n")
@@ -203,10 +357,15 @@ class IdentiteJoueur:
         print(f"👤 INFORMATIONS DU PERSONNAGE")
         print(f"{'='*50}")
         print(f"Nom complet : {self.obtenir_nom_complet()}")
+        print(f"Niveau      : {self.niveau}  |  XP : {self.xp}/{self.xp_prochain_niveau}  |  💰 Gold : {self.gold}")
         if self.race:
             print(f"Race        : {self.race.nom}")
         if self.classe:
             print(f"Classe      : {self.classe.nom}")
+        if self.arme:
+            print(f"Arme        : {self.arme}")
+        if self.armure:
+            print(f"Armure      : {self.armure}")
         self.stats.afficher_stats()
         print(f"{'='*50}")
     
